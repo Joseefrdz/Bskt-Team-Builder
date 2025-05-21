@@ -1,0 +1,56 @@
+<div class="players">
+  <select id="selector" class="form-select" aria-label="Default select example" [(ngModel)]="teamId">
+    <option [value]="null" style="display: none">Elige un equipo</option>
+    <option value="529">Barcelona</option>
+    <option value="530">Atletico Madrid</option>
+    <option value="531">Athletic Club</option>
+    <option value="532">Valencia</option>
+    <option value="533">Villarreal</option>
+    <option value="534">Las Palmas</option>
+    <option value="536">Sevilla</option>
+    <option value="538">Celta Vigo</option>
+    <option value="541">Real Madrid</option>
+    <option value="542">Alaves</option>
+    <option value="543">Real Betis</option>
+    <option value="546">Getafe</option>
+    <option value="547">Girona</option>
+    <option value="548">Real Sociedad</option>
+    <option value="715">Granada CF</option>
+    <option value="723">Almeria</option>
+    <option value="724">Cadiz</option>
+    <option value="727">Osasuna</option>
+    <option value="728">Rayo Vallecano</option>
+    <option value="798">Mallorca</option>
+  </select>
+
+  <div class="player-list">
+    <div class="row contenido">
+      <div id="list-example" class="list-group" *ngIf="players.length > 0">
+        <div class="list-group-item list-group-item-action item" *ngFor="let playerResponse of players" draggable="true"
+          (dragstart)="onPlayerDragStart($event, playerResponse)"
+          style="display: flex; align-items: center; cursor: grab">
+          <div style="display: flex; align-items: center; flex-grow: 1">
+            <img class="img" [src]="playerResponse.player.photo" alt="{{ playerResponse.player.name }}" />
+            {{ playerResponse.player.name }}
+          </div>
+          <span class="position-label" [ngStyle]="{
+              'background-color':
+                positionColor[playerResponse.statistics[0].games.position]
+            }">
+            {{ abreviarPosicion(playerResponse.statistics[0].games.position) }}
+          </span>
+          <img class="imgTeam" [src]="playerResponse.statistics[0].team.logo"
+            alt="{{ playerResponse.statistics[0].team.name }}" />
+        </div>
+      </div>
+      <div class="d-flex justify-content-center">
+        <p *ngIf="players.length === 0 && teamId !== null">
+          No se encontraron jugadores para este equipo.
+        </p>
+        <p *ngIf="teamId === null">
+          Selecciona un equipo para ver los jugadores.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

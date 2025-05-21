@@ -1,0 +1,50 @@
+.players {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 1rem;
+  height: 85vh;
+  border: 2px solid rgb(190, 190, 190);
+  border-radius: 20px;
+}
+.contenido {
+  width: 30vw;
+  height: 75vh;
+  overflow: auto;
+}
+#selector {
+  width: 80%;
+  margin-bottom: 20px;
+}
+#list-example {
+  /* font-size: medium; */
+  font-size: clamp(0.4vw, 1vw, medium);
+}
+
+.item {
+  border: 1px solid #bebebe;
+  font-size: clamp(0.4rem, 2vw, 1.1rem);
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+.img {
+  height: clamp(0.8rem, 3vw, 30px);
+  width: clamp(0.8rem, 3vw, 30px);
+  border: 1px solid #bebebe;
+  border-radius: 5px;
+  margin-right: 5px;
+}
+.imgTeam {
+  height: clamp(0.8rem, 3vw, 30px);
+  width: clamp(0.8rem, 3vw, 30px);
+}
+.position-label {
+  text-align: center;
+  width: 3em;
+  padding: 4px 4px;
+  border-radius: 4px;
+  color: white;
+  font-size: clamp(0.2rem, 1.5vw, 0.9rem);
+  font-weight: bold;
+  margin-right: 2px;
+}
