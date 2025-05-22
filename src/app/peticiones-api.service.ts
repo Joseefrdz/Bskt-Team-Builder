@@ -12,8 +12,8 @@ export class PeticionesApiService {
   constructor() { }
 
   private apiKey: string = "e7d047a5014b146182d069a6a81c1240"
-  private apiHost: string = "v3.football.api-sports.io"
-  private apiUrl: string = "https://v3.football.api-sports.io/"
+  private apiHost: string = "v1.basketball.api-sports.io"
+  private apiUrl: string = "https://v1.basketball.api-sports.io/"
   private http: HttpClient = inject(HttpClient);
 
   public getPlayers(id: number): Observable<ApiResponse> {
