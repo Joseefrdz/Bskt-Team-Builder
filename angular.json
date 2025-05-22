@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "line-up-builder": {
+    "Bskt-Team-Builder": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,14 +13,14 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/line-up-builder",
+            "outputPath": "dist/Bskt-Team-Builder",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "assets": [
-                "src/favicon.ico",
-                "src/assets",
+              "src/favicon.ico",
+              "src/assets",
               {
                 "glob": "**/*",
                 "input": "public"
@@ -62,10 +62,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "line-up-builder:build:production"
+              "buildTarget": "Bskt-Team-Builder:build:production"
             },
             "development": {
-              "buildTarget": "line-up-builder:build:development"
+              "buildTarget": "Bskt-Team-Builder:build:development"
             }
           },
           "defaultConfiguration": "development"
