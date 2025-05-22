@@ -1,144 +1,58 @@
-export interface ApiResponse {
-    get: string;
-    parameters: Parameters;
-    errors: any[];
-    results: number;
-    paging: Paging;
-    response: PlayerResponse[];
-}
-
-export interface Parameters {
-    team: string;
-    season: string;
-}
-
-export interface Paging {
-    current: number;
-    total: number;
-}
-
-export interface PlayerResponse {
-    player: Player;
-    statistics: Statistic[];
-}
 
 export interface Player {
     id: number;
     name: string;
-    firstname: string;
-    lastname: string;
+    number: string;
+    country: string;
+    position: string; // "Guard", "Forward", "Center"
     age: number;
-    birth: Birth;
-    nationality: string;
-    height?: string;
-    weight?: string;
-    injured: boolean;
-    photo: string;
+    photo?: string; // La API te la devuelve, pero no en tu JSON de ejemplo directamente en 'player'.
+    // Se encuentra en 'statistics[0].player.photo'. Lo gestionaremos en el componente.
 }
 
-export interface Birth {
-    date: string;
-    place: string;
-    country: string;
+export interface TeamStat {
+    id: number;
+    name: string;
+    logo: string;
+}
+
+export interface GameStat {
+    minutes: string | null;
+    points: string | null;
+    assists: string | null;
+    rebounds: string | null;
+    steals: string | null;
+    blocks: string | null;
+    turnovers: string | null;
+    fouls: string | null;
+    fastBreakPoints: string | null;
+    pointsInPaint: string | null;
+    secondChancePoints: string | null;
+    teamTurnovers: string | null;
+    playerTurnovers: string | null;
+    fgp: string | null; // Field Goal Percentage
+    tpp: string | null; // 3 Point Percentage
+    ftp: string | null; // Free Throw Percentage
 }
 
 export interface Statistic {
-    team: Team;
-    league: League;
-    games: Games;
-    substitutes: Substitutes;
-    shots: Shots;
-    goals: Goals;
-    passes: Passes;
-    tackles: Tackles;
-    duels: Duels;
-    dribbles: Dribbles;
-    fouls: Fouls;
-    cards: Cards;
-    penalty: Penalty;
+    team: TeamStat;
+    games: GameStat;
 }
 
-export interface Team {
-    id: number;
-    name: string;
-    logo: string;
+export interface PlayerResponse {
+    id: number; // Este ID principal es el del jugador para la respuesta general
+    player: Player; // Contiene los datos básicos del jugador (id, name, etc.)
+    statistics: Statistic[]; // Contiene las estadísticas, incluyendo team y games
 }
 
-export interface League {
-    id: number;
-    name: string;
-    country: string;
-    logo: string;
-    flag?: string;
-    season: number;
-}
-
-export interface Games {
-    appearences?: number | null;
-    lineups?: number | null;
-    minutes?: number | null;
-    number: any;
-    position: string;
-    rating?: string | null;
-    captain: boolean;
-}
-
-export interface Substitutes {
-    in?: number | null;
-    out?: number | null;
-    bench?: number | null;
-}
-
-export interface Shots {
-    total?: number | null;
-    on?: number | null;
-}
-
-export interface Goals {
-    total?: number | null;
-    conceded?: number | null;
-    assists?: number | null;
-    saves: any;
-}
-
-export interface Passes {
-    total?: number | null;
-    key?: number | null;
-    accuracy?: number | null;
-}
-
-export interface Tackles {
-    total?: number | null;
-    blocks?: number | null;
-    interceptions?: number | null;
-}
-
-export interface Duels {
-    total?: number | null;
-    won?: number | null;
-}
-
-export interface Dribbles {
-    attempts?: number | null;
-    success?: number | null;
-    past: any;
-}
-
-export interface Fouls {
-    drawn?: number | null;
-    committed?: number | null;
-}
-
-export interface Cards {
-    yellow?: number | null;
-    yellowred?: number | null;
-    red?: number | null;
-}
-
-export interface Penalty {
-    won: any;
-    commited: any;
-    scored?: number | null;
-    missed?: number | null;
-    saved: any;
+export interface PlayersApiResponse { // Cambiado de ApiResponse a PlayersApiResponse para mayor claridad
+    get: string;
+    parameters: {
+        team: string;
+        season: string;
+    };
+    errors: any[];
+    results: number;
+    response: PlayerResponse[];
 }

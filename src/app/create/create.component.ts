@@ -26,7 +26,7 @@ interface PlayerPosition {
   imports: [
     CommonModule /* , SelectorComponent (si app-selector está en este template y es standalone) */,
     SelectorComponent
-],
+  ],
   templateUrl: './create.component.html',
   styleUrls: ['./create.component.css'], // Este CSS definirá el estilo de la card en el campo
 })
@@ -42,75 +42,53 @@ export class CreateComponent implements AfterViewInit {
       'id' | 'isOccupied' | 'isDragOver' | 'droppedPlayer'
     >[];
   } = {
-    '4-3-3': [
-      { x: 5, y: 50, role: 'POR', color: '#405BA4' },
-      { x: 20, y: 20, role: 'LD', color: '#42713F' },
-      { x: 20, y: 40, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 60, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 80, role: 'LI', color: '#42713F' },
-      { x: 45, y: 30, role: 'MC', color: '#AEA503' },
-      { x: 45, y: 50, role: 'MC', color: '#AEA503' },
-      { x: 45, y: 70, role: 'MC', color: '#AEA503' },
-      { x: 70, y: 25, role: 'ED', color: '#91211B' },
-      { x: 70, y: 50, role: 'DC', color: '#91211B' },
-      { x: 70, y: 75, role: 'EI', color: '#91211B' },
-    ],
-    // ... (otras formaciones como 4-4-2, 4-2-3-1, 3-5-2, 5-3-2)
-    '4-4-2': [
-      { x: 5, y: 50, role: 'POR', color: '#405BA4' },
-      { x: 20, y: 20, role: 'LD', color: '#42713F' },
-      { x: 20, y: 40, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 60, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 80, role: 'LI', color: '#42713F' },
-      { x: 45, y: 15, role: 'MD', color: '#AEA503' },
-      { x: 45, y: 40, role: 'MC', color: '#AEA503' },
-      { x: 45, y: 60, role: 'MC', color: '#AEA503' },
-      { x: 45, y: 85, role: 'MI', color: '#AEA503' },
-      { x: 70, y: 35, role: 'DC', color: '#91211B' },
-      { x: 70, y: 65, role: 'DC', color: '#91211B' },
-    ],
-    '4-2-3-1': [
-      { x: 5, y: 50, role: 'POR', color: '#405BA4' },
-      { x: 20, y: 20, role: 'LD', color: '#42713F' },
-      { x: 20, y: 40, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 60, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 80, role: 'LI', color: '#42713F' },
-      { x: 38, y: 35, role: 'MCD', color: '#AEA503' },
-      { x: 38, y: 65, role: 'MCD', color: '#AEA503' },
-      { x: 55, y: 20, role: 'MPD', color: '#AEA503' },
-      { x: 55, y: 50, role: 'MPC', color: '#AEA503' },
-      { x: 55, y: 80, role: 'MPI', color: '#AEA503' },
-      { x: 75, y: 50, role: 'DC', color: '#91211B' },
-    ],
-    '3-5-2': [
-      { x: 5, y: 50, role: 'POR', color: '#405BA4' },
-      { x: 20, y: 30, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 50, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 70, role: 'DFC', color: '#42713F' },
-      { x: 45, y: 10, role: 'CARD', color: '#AEA503' },
-      { x: 40, y: 35, role: 'MC', color: '#AEA503' },
-      { x: 40, y: 50, role: 'MC', color: '#AEA503' },
-      { x: 40, y: 65, role: 'MC', color: '#AEA503' },
-      { x: 45, y: 90, role: 'CARI', color: '#AEA503' },
-      { x: 70, y: 40, role: 'DC', color: '#91211B' },
-      { x: 70, y: 60, role: 'DC', color: '#91211B' },
-    ],
-    '5-3-2': [
-      { x: 5, y: 50, role: 'POR', color: '#405BA4' },
-      { x: 20, y: 15, role: 'CARD', color: '#42713F' },
-      { x: 22, y: 35, role: 'DFC', color: '#42713F' },
-      { x: 22, y: 50, role: 'DFC (LIB)', color: '#42713F' },
-      { x: 22, y: 65, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 85, role: 'CARI', color: '#42713F' },
-      { x: 45, y: 30, role: 'MC', color: '#AEA503' },
-      { x: 45, y: 50, role: 'MC', color: '#AEA503' },
-      { x: 45, y: 70, role: 'MC', color: '#AEA503' },
-      { x: 70, y: 40, role: 'DC', color: '#91211B' },
-      { x: 70, y: 60, role: 'DC', color: '#91211B' },
-    ],
-  };
+      '2-1-2': [ // Zona 2-1-2 (dos arriba, uno en el medio, dos abajo)
+        // Coordenadas ajustadas para simular la formación defensiva
+        // Los jugadores se distribuirán en la media cancha defensiva.
+        { x: 75, y: 30, role: 'ESC', color: '#885B89' }, // Arriba izquierda (defensor exterior)
+        { x: 75, y: 70, role: 'BS', color: '#405BA4' }, // Arriba derecha (defensor exterior)
+        { x: 55, y: 50, role: 'ALA', color: '#AEA503' }, // Medio (poste alto)
+        { x: 25, y: 20, role: 'AP', color: '#42713F' }, // Abajo izquierda (esquina o poste bajo)
+        { x: 25, y: 80, role: 'PVT', color: '#91211B' }, // Abajo derecha (esquina o poste bajo)
+      ],
+      '1-2-2': [ // Zona 1-2-2 (uno arriba, dos en el medio, dos abajo)
+        { x: 85, y: 50, role: 'BS', color: '#405BA4' }, // Arriba (punta)
+        { x: 60, y: 25, role: 'ESC', color: '#885B89' }, // Medio izquierda (ala/codo)
+        { x: 60, y: 75, role: 'ALA', color: '#AEA503' }, // Medio derecha (ala/codo)
+        { x: 25, y: 20, role: 'AP', color: '#42713F' }, // Abajo izquierda (esquina o bajo)
+        { x: 25, y: 80, role: 'PVT', color: '#91211B' }, // Abajo derecha (esquina o bajo)
+      ],
+      '1-1-3': [ // Zona 1-1-3 (uno arriba, uno en el poste alto, tres abajo)
+        { x: 85, y: 50, role: 'BS', color: '#405BA4' }, // Arriba (punta)
+        { x: 55, y: 50, role: 'ESC', color: '#885B89' }, // Medio (poste alto)
+        { x: 25, y: 15, role: 'ALA', color: '#AEA503' }, // Abajo izquierda (esquina profunda)
+        { x: 15, y: 50, role: 'AP', color: '#42713F' }, // Abajo centro (cerca del aro)
+        { x: 25, y: 85, role: 'PVT', color: '#91211B' }, // Abajo derecha (esquina profunda)
+      ],
+      '1-3-1': [ // Zona 1-3-1 (uno arriba, tres en línea media, uno abajo)
+        { x: 85, y: 50, role: 'BS', color: '#405BA4' }, // Arriba (punta)
+        { x: 60, y: 15, role: 'ESC', color: '#885B89' }, // Ala izquierda (parte de los '3')
+        { x: 50, y: 50, role: 'AP', color: '#42713F' }, // Poste alto (centro de los '3')
+        { x: 60, y: 85, role: 'ALA', color: '#AEA503' }, // Ala derecha (parte de los '3')
+        { x: 25, y: 50, role: 'PVT', color: '#91211B' }, // Poste bajo (el '1' de abajo)
+      ],
+      '2-3': [ // Zona 2-3 (dos arriba, tres abajo) - La zona más común
+        { x: 75, y: 30, role: 'BS', color: '#405BA4' }, // Arriba izquierda
+        { x: 75, y: 70, role: 'ESC', color: '#885B89' }, // Arriba derecha
+        { x: 25, y: 15, role: 'ALA', color: '#AEA503' }, // Abajo izquierda (esquina)
+        { x: 15, y: 50, role: 'AP', color: '#42713F' }, // Abajo centro (Pívot defensivo)
+        { x: 25, y: 85, role: 'PVT', color: '#91211B' }, // Abajo derecha (esquina)
+      ],
+      '3-2': [ // Zona 3-2 (tres arriba, dos abajo)
+        { x: 75, y: 50, role: 'BS', color: '#405BA4' }, // Central arriba
+        { x: 75, y: 20, role: 'ESC', color: '#885B89' }, // Ala izquierda (arriba)
+        { x: 75, y: 80, role: 'ALA', color: '#AEA503' }, // Ala derecha (arriba)
+        { x: 25, y: 35, role: 'AP', color: '#42713F' }, // Abajo izquierda
+        { x: 25, y: 65, role: 'PVT', color: '#91211B' }, // Abajo derecha
+      ],
+    };
 
-  constructor() {}
+  constructor() { }
 
   // Event listener para el select de formación (del HTML original)
   // Este método tiene que estar presente si el (change) event está en el select
