@@ -85,14 +85,19 @@ export class SelectorComponent implements OnInit, OnChanges {
 
   onTeamSelected(): void {
     console.log('Equipo seleccionado (ID):', this.teamId);
-    if (this.teamId !== null) {
-      this.getPlayersByTeam(this.teamId); // <-- Llama a la función para obtener jugadores
+    if (this.teamId !== null && this.teams.length > 0) {
       const selectedTeam = this.teams.find(team => team.id === this.teamId);
-      this.currentTeamLogo = selectedTeam ? selectedTeam.logo : undefined;
-      console.log('Logo del equipo seleccionado:', this.currentTeamLogo);
+      // Solo actualizamos currentTeamLogo si se encontró un equipo.
+      // Si selectedTeam es undefined, currentTeamLogo será undefined.
+      this.currentTeamLogo = selectedTeam?.logo;
+      console.log('Logo del equipo seleccionado (antes de getPlayersByTeam):', this.currentTeamLogo);
+
+      this.getPlayersByTeam(this.teamId);
     } else {
-      this.players = []; // Limpia la lista de jugadores si no hay equipo seleccionado
+      // Si no hay equipo seleccionado o los equipos no están cargados, limpiar.
+      this.players = [];
       this.currentTeamLogo = undefined;
+      console.log('No hay equipo seleccionado o equipos no cargados. currentTeamLogo limpiado.');
     }
   }
 
@@ -102,6 +107,9 @@ export class SelectorComponent implements OnInit, OnChanges {
         if (data && data.response) {
           this.players = data.response;
           console.log('Jugadores obtenidos:', this.players);
+        } else {
+          this.players = [];
+          console.log('No se encontraron jugadores para este equipo o respuesta vacía.');
         }
       },
       error: (err) => {
