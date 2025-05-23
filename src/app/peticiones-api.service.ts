@@ -12,7 +12,7 @@ export class PeticionesApiService {
 
   constructor() { }
 
-  private apiKey: string = "e7d047a5014b146182d069a6a81c1240";
+  private apiKey: string = "7b1173442156833c9a13fa598dd42d1b";
   private apiHost: string = "v1.basketball.api-sports.io";
   private apiUrl: string = "https://v1.basketball.api-sports.io/";
   private http: HttpClient = inject(HttpClient);
