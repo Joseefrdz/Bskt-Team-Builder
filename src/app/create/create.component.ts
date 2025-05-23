@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, ViewChild, OnInit, inject } from 
 import { SelectorComponent } from './selector/selector.component';
 import { PeticionesApiService } from '../peticiones-api.service'
 import { LeaguesResponse, Season } from '../models/Leagues';
+import html2canvas from 'html2canvas';
 import { CommonModule } from '@angular/common';
 import { PlayerResponse } from '../models/Players';
 
@@ -93,6 +94,7 @@ export class CreateComponent implements AfterViewInit, OnInit {
   public leagues: LeaguesResponse[] = [];
   public selectedLeagueId: number | null = null;
   public filteredLeagues: LeaguesResponse[] = [];//Para filtrar las ligas que no sean de 2023 en el selector
+  TeamName: string = ''; // Nombre del equipo, se puede cambiar en el input
 
   ngOnInit(): void {
     this.getLeagues();
@@ -207,5 +209,39 @@ export class CreateComponent implements AfterViewInit, OnInit {
   clearPlayerSlot(position: PlayerPosition): void {
     position.droppedPlayer = undefined;
     position.isOccupied = false;
+  }
+
+  downloadImage(): void {
+    const elementToCapture = document.querySelector('#captura') as HTMLElement | null;
+
+    if (!elementToCapture) {
+      console.error('Elemento #captura no encontrado.');
+      return;
+    }
+
+    html2canvas(elementToCapture, {
+      allowTaint: false, // Es importante establecer esto en false cuando useCORS es true
+      useCORS: true,     // ¡Esta es la opción clave!
+      logging: true,     // Muestra logs en la consola, útil para depurar problemas con html2canvas
+      // Opcional: Si la imagen de fondo es la única que causa problemas y es muy grande,
+      // a veces un pequeño retraso puede ayudar, aunque useCORS es la solución principal.
+      //windowDelay: 500, // Espera 500ms después de que la ventana cargue (menos común para imágenes específicas)
+
+      // Si quieres un fondo específico para el PNG (en caso de transparencias en tu diseño)
+      // backgroundColor: '#ffffff', // Por ejemplo, blanco. Si es null, respeta la transparencia.
+
+      // Para mejorar la calidad en pantallas de alta densidad (retina), puedes usar la escala:
+      scale: window.devicePixelRatio,
+    }).then((canvas) => {
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png'); // Mantienes PNG, que soporta transparencia
+      // Si quisieras JPEG (no soporta transparencia):
+      // link.href = canvas.toDataURL('image/jpeg', 0.9); // 0.9 es la calidad (90%)
+      link.download = `${this.TeamName || 'Your-Bskt-Team'}.png`; // Asegúrate que lineUpName tenga un valor
+      link.click();
+    }).catch(error => {
+      console.error('Error al generar la imagen con html2canvas:', error);
+      // Aquí podrías mostrar un mensaje al usuario indicando que hubo un problema.
+    });
   }
 }
