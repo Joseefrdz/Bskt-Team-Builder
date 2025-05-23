@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PlayersApiResponse, PlayerResponse } from './models/Players';
+import { PlayersApiResponse } from './models/Players';
 import { LeaguesApiResponse } from './models/Leagues';
 import { TeamsApiResponse } from './models/Teams';
 

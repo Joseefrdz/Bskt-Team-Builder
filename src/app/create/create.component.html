@@ -1,7 +1,8 @@
 <section class="con container-fluid d-flex flex-column justify-content-start">
   <div class="asd row d-flex align-items-center">
     <div class="jaiiime col-4 d-flex justify-content-center">
-      <select #formationSelect id="Jaime" class="form-control" (change)="updatePlayerPositions(formationSelect.value)">
+      <select #formationSelect id="select1" class="form-control select"
+        (change)="updatePlayerPositions(formationSelect.value)">
         <option selected style="display: none;" value="">SELECCIONA UNA FORMACIÓN</option>
         <option value="2-1-2">2-1-2</option>
         <option value="1-2-2">1-2-2</option>
@@ -11,10 +12,12 @@
         <option value="3-2">3-2</option>
       </select>
     </div>
-    <div class="jaiiime col-4 d-flex justify-content-center">
-      <select #formationSelect id="Jaime" class="form-control" (change)="updatePlayerPositions(formationSelect.value)">
+    <div class="col-4 d-flex justify-content-center">
+      <select #formationSelect class="form-control select" (change)="onLeagueSelected($event)">
         <option selected style="display: none;" value="">SELECCIONA UNA LIGA</option>
-        <option value="name">LigaEjemplo</option>
+        <ng-container *ngFor="let league of filteredLeagues">
+          <option [value]="league.id">{{ league.name }}</option>
+        </ng-container>
       </select>
     </div>
     <div class="cosas col-4 d-flex justify-content-start">
@@ -43,7 +46,7 @@
 
             <ng-container *ngIf="position.isOccupied && position.droppedPlayer">
               <div class="field-player-card" [style.background-color]="position.color">
-                <img class="field-player-img" [src]="position.droppedPlayer.photo"
+                <img class="field-player-img" [src]="position.droppedPlayer.teamLogo"
                   alt="{{ position.droppedPlayer.name }}">
                 <div class="field-player-name">{{ position.droppedPlayer.name }}</div>
                 <button *ngIf="position.isOccupied" class="clear-slot-btn" (click)="clearPlayerSlot(position)"
@@ -59,6 +62,6 @@
         </div>
       </div>
     </div>
-    <app-selector class="col-4"></app-selector>
+    <app-selector class="col-4" [leagueId]="selectedLeagueId"></app-selector>
   </div>
 </div>

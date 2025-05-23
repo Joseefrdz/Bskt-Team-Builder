@@ -1,22 +1,22 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild, OnInit, inject } from '@angular/core';
 import { SelectorComponent } from './selector/selector.component';
+import { PeticionesApiService } from '../peticiones-api.service'
+import { LeaguesResponse, Season } from '../models/Leagues';
 import { CommonModule } from '@angular/common';
+import { PlayerResponse } from '../models/Players';
 
-// Interfaz para los datos del jugador que se arrastran
-interface DraggedPlayerData {
-  id: number;
-  name: string;
-  photo: string;
-} // Interfaz actualizada para las posiciones en el campo
+interface DraggedPlayerDataWithTeamLogo extends PlayerResponse { // Extiende PlayerResponse
+  teamLogo?: string; // <-- Añadimos la propiedad para el logo del equipo
+}
 interface PlayerPosition {
   x: number;
   y: number;
   role?: string;
-  color?: string; // Color original del slot/placeholder
+  color?: string;
 
-  droppedPlayer?: DraggedPlayerData;
+  droppedPlayer?: DraggedPlayerDataWithTeamLogo;
   isOccupied: boolean;
-  isDragOver?: boolean;
+  isDragOver: boolean;
   id: string; // Un identificador único para cada slot
 }
 
@@ -30,7 +30,7 @@ interface PlayerPosition {
   templateUrl: './create.component.html',
   styleUrls: ['./create.component.css'], // Este CSS definirá el estilo de la card en el campo
 })
-export class CreateComponent implements AfterViewInit {
+export class CreateComponent implements AfterViewInit, OnInit {
   @ViewChild('formationSelect') formationSelect!: ElementRef<HTMLSelectElement>; // Usado para el select de formación
 
   public playerPositions: PlayerPosition[] = [];
@@ -88,53 +88,74 @@ export class CreateComponent implements AfterViewInit {
       ],
     };
 
-  constructor() { }
 
-  // Event listener para el select de formación (del HTML original)
-  // Este método tiene que estar presente si el (change) event está en el select
+  private apiService: PeticionesApiService = inject(PeticionesApiService);
+  public leagues: LeaguesResponse[] = [];
+  public selectedLeagueId: number | null = null;
+  public filteredLeagues: LeaguesResponse[] = [];//Para filtrar las ligas que no sean de 2023 en el selector
+
+  ngOnInit(): void {
+    this.getLeagues();
+  }
+
+  getLeagues(): void {
+    this.apiService.getLeagues().subscribe({
+      next: (data) => {
+        if (data && data.response) {
+          this.leagues = data.response;
+          this.filteredLeagues = this.leagues.filter(league =>
+            this.hasSeason2023(league.seasons)
+          );
+          console.log('Ligas filtradas obtenidas:', this.filteredLeagues);
+        }
+      },
+      error: (err) => {
+        console.error('Error al obtener las ligas:', err);
+      }
+    });
+  }
+
+  // Event listener para el select de Liga
+  onLeagueSelected(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const value = selectElement.value;
+    this.selectedLeagueId = value ? parseInt(value, 10) : null;
+    console.log('Liga seleccionada (ID):', this.selectedLeagueId);
+  }
+
+  private hasSeason2023(seasons: Season[]): boolean {
+    if (!seasons || seasons.length === 0) {
+      return false;
+    }
+    // Comprueba si alguna de las temporadas en el array es 2023
+    return seasons.some(season => season.season === 2023);
+  }
+
+  // Event listener para el select de formación
   onFormationSelectChange(event: Event): void {
     const selectedFormationKey = (event.target as HTMLSelectElement).value;
     this.updatePlayerPositions(selectedFormationKey);
   }
 
-  // ngAfterViewInit para cargar la formación inicial o manejar el select si se usa ViewChild
   ngAfterViewInit(): void {
     // Conectar el select de formaciones si no se usa (change) en el template
     // o para cargar una formación por defecto
-    const selectElement = document.getElementById('Jaime') as HTMLSelectElement;
+    const selectElement = document.getElementById('select1') as HTMLSelectElement;
     if (selectElement) {
       selectElement.addEventListener('change', (event) =>
         this.onFormationSelectChange(event)
       );
-      // Para cargar una formación inicial si alguna está seleccionada por defecto (que no sea el placeholder)
+      // Para cargar una formación inicial si alguna está seleccionada por defecto
       if (
         selectElement.value &&
         selectElement.value !== 'SELECCIONA UNA FORMACIÓN'
       ) {
         this.updatePlayerPositions(selectElement.value);
       }
-    } else {
-      // Si se usa ViewChild y (change) en el template, este bloque es alternativo
-      if (this.formationSelect?.nativeElement) {
-        // this.formationSelect.nativeElement.value podría ser la opción "SELECCIONA..."
-        // o un valor numérico como "1", "2", etc. Hay que mapear esto.
-        // La lógica actual en el HTML usa values como "4-3-3", "4-4-2".
-        // El select original en create.component.html tiene values "1", "2", ...
-        // Es importante que los values del select coincidan con las keys de formationsData
-        // Modificaré el onFormationChange para que use el valor del select.
-      }
     }
   }
 
-  // Método modificado para manejar el cambio de formación desde el select original
-  // Este método se llamará desde el event listener añadido en ngAfterViewInit
-  // O directamente desde el template si se usa (change)="onFormationSelected($event.target.value)"
   updatePlayerPositions(formationKey: string): void {
-    // Mapear value "1" a "4-3-3", "2" a "4-4-2", etc. si es necesario
-    // O mejor, cambiar los values del select en create.component.html
-    // a "4-3-3", "4-4-2" para que coincidan con las keys de formationsData.
-    // Asumiré que los values del select ya son "4-3-3", "4-4-2", etc.
-    // Si no, necesitas un mapeo aquí.
 
     const formationBaseData = this.formationsData[formationKey];
 
@@ -170,9 +191,11 @@ export class CreateComponent implements AfterViewInit {
       const playerDataString = event.dataTransfer.getData('application/json');
       if (playerDataString) {
         try {
-          const playerData: DraggedPlayerData = JSON.parse(playerDataString);
-          targetPosition.droppedPlayer = playerData;
-          targetPosition.isOccupied = true;
+          // Parseamos el JSON a un objeto PlayerResponse completo
+          const playerData: DraggedPlayerDataWithTeamLogo = JSON.parse(playerDataString); //
+          targetPosition.droppedPlayer = playerData; //
+          targetPosition.isOccupied = true; //
+          console.log(`Jugador "${playerData.name}" (Equipo Logo: ${playerData.teamLogo || 'N/A'}) soltado en la posición: ${targetPosition.role}`);
         } catch (e) {
           console.error('Error al parsear datos del jugador:', e);
         }
