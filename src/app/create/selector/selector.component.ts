@@ -2,12 +2,12 @@ import { Component, inject, OnInit, OnChanges, SimpleChanges, Input } from '@ang
 import { TeamsResponse } from '../../models/Teams';
 import { PeticionesApiService } from '../../peticiones-api.service';
 import { FormsModule } from '@angular/forms';
-import { NgIf, NgFor, NgStyle } from '@angular/common';
+import { NgIf, NgFor } from '@angular/common';
 import { PlayerResponse } from '../../models/Players';
 
 @Component({
   selector: 'app-selector',
-  imports: [FormsModule, NgIf, NgFor, NgStyle],
+  imports: [FormsModule, NgIf, NgFor],
   templateUrl: './selector.component.html',
   styleUrl: './selector.component.css',
 })
