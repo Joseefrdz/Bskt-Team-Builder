@@ -24,44 +24,44 @@
       <button class="btn btn-primary" (click)="downloadImage()">DESCARGAR</button>
       <div class="input-group flex-nowrap w-50">
         <input type="text" class="teamName form-control" placeholder="Nombre de equipo" aria-label="Nombre de equipo"
-          aria-describedby="addon-wrapping" />
+          aria-describedby="addon-wrapping" [(ngModel)]="TeamName" />
       </div>
     </div>
   </div>
-</section>
-<div class="hero container-fluid d-flex flex-column ">
-  <div class="row d-flex align-items-center">
-    <div class="col-8 d-flex justify-content-center align-items-center">
-      <div class="wrapper" id="captura" style="position: relative; display: inline-block;">
-        <img id="field" class="img-fluid" src="https://i.ibb.co/20f8V8hT/01.jpg" alt="Campo de Baloncesto"
-          style="display: block;">
+  <div class="hero container-fluid d-flex flex-column ">
+    <div class="row d-flex align-items-center">
+      <div class="col-8 d-flex justify-content-center align-items-center">
+        <div class="wrapper" id="captura" style="position: relative; display: inline-block;">
+          <img id="field" class="img-fluid" src="https://i.ibb.co/20f8V8hT/01.jpg" alt="Campo de Baloncesto"
+            style="display: block;">
 
-        <div id="player-positions-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-          <div *ngFor="let position of playerPositions" class="player-marker-slot"
-            [class.occupied]="position.isOccupied" [class.drag-over-active]="position.isDragOver"
-            [style.left.%]="position.x" [style.top.%]="position.y" [style.pointer-events]="'auto'"
-            (dragover)="onDragOver($event, position)" (dragleave)="onDragLeave($event, position)"
-            (drop)="onDrop($event, position)"
-            title="{{ position.isOccupied ? position.droppedPlayer?.name : position.role }}">
+          <div id="player-positions-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+            <div *ngFor="let position of playerPositions" class="player-marker-slot"
+              [class.occupied]="position.isOccupied" [class.drag-over-active]="position.isDragOver"
+              [style.left.%]="position.x" [style.top.%]="position.y" [style.pointer-events]="'auto'"
+              (dragover)="onDragOver($event, position)" (dragleave)="onDragLeave($event, position)"
+              (drop)="onDrop($event, position)"
+              title="{{ position.isOccupied ? position.droppedPlayer?.name : position.role }}">
 
-            <ng-container *ngIf="position.isOccupied && position.droppedPlayer">
-              <div class="field-player-card" [style.background-color]="position.color">
-                <img class="field-player-img" [src]="position.droppedPlayer.teamLogo"
-                  alt="{{ position.droppedPlayer.name }}">
-                <div class="field-player-name">{{ position.droppedPlayer.name }}</div>
-                <button *ngIf="position.isOccupied" class="clear-slot-btn" (click)="clearPlayerSlot(position)"
-                  title="Quitar jugador">X</button>
-              </div>
-            </ng-container>
-            <ng-container *ngIf="!position.isOccupied">
-              <div class="empty-slot-placeholder" [style.background-color]="position.color">
-                {{ position.role }}
-              </div>
-            </ng-container>
+              <ng-container *ngIf="position.isOccupied && position.droppedPlayer">
+                <div class="field-player-card" [style.background-color]="position.color">
+                  <img class="field-player-img" [src]="position.droppedPlayer.teamLogo"
+                    alt="{{ position.droppedPlayer.name }}">
+                  <div class="field-player-name">{{ position.droppedPlayer.name }}</div>
+                  <button *ngIf="position.isOccupied" class="clear-slot-btn" (click)="clearPlayerSlot(position)"
+                    title="Quitar jugador">X</button>
+                </div>
+              </ng-container>
+              <ng-container *ngIf="!position.isOccupied">
+                <div class="empty-slot-placeholder" [style.background-color]="position.color">
+                  {{ position.role }}
+                </div>
+              </ng-container>
+            </div>
           </div>
         </div>
       </div>
+      <app-selector class="col-4" [leagueId]="selectedLeagueId"></app-selector>
     </div>
-    <app-selector class="col-4" [leagueId]="selectedLeagueId"></app-selector>
   </div>
-</div>
+</section>

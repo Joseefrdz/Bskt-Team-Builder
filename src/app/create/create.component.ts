@@ -5,10 +5,12 @@ import { LeaguesResponse, Season } from '../models/Leagues';
 import html2canvas from 'html2canvas';
 import { CommonModule } from '@angular/common';
 import { PlayerResponse } from '../models/Players';
+import { FormsModule } from '@angular/forms';
 
 interface DraggedPlayerDataWithTeamLogo extends PlayerResponse { // Extiende PlayerResponse
   teamLogo?: string; // <-- Añadimos la propiedad para el logo del equipo
 }
+
 interface PlayerPosition {
   x: number;
   y: number;
@@ -25,18 +27,21 @@ interface PlayerPosition {
   selector: 'app-create',
   standalone: true,
   imports: [
-    CommonModule /* , SelectorComponent (si app-selector está en este template y es standalone) */,
-    SelectorComponent
+    CommonModule,
+    SelectorComponent,
+    FormsModule
   ],
   templateUrl: './create.component.html',
-  styleUrls: ['./create.component.css'], // Este CSS definirá el estilo de la card en el campo
+  styleUrls: ['./create.component.css'],
 })
+
+
 export class CreateComponent implements AfterViewInit, OnInit {
-  @ViewChild('formationSelect') formationSelect!: ElementRef<HTMLSelectElement>; // Usado para el select de formación
+  @ViewChild('formationSelect') formationSelect!: ElementRef<HTMLSelectElement>;
 
   public playerPositions: PlayerPosition[] = [];
 
-  // Definición de formaciones (como en la respuesta anterior)
+  // Definición de formaciones
   private formationsData: {
     [key: string]: Omit<
       PlayerPosition,
@@ -44,8 +49,6 @@ export class CreateComponent implements AfterViewInit, OnInit {
     >[];
   } = {
       '2-1-2': [ // Zona 2-1-2 (dos arriba, uno en el medio, dos abajo)
-        // Coordenadas ajustadas para simular la formación defensiva
-        // Los jugadores se distribuirán en la media cancha defensiva.
         { x: 75, y: 30, role: 'ESC', color: '#885B89' }, // Arriba izquierda (defensor exterior)
         { x: 75, y: 70, role: 'BS', color: '#405BA4' }, // Arriba derecha (defensor exterior)
         { x: 55, y: 50, role: 'ALA', color: '#AEA503' }, // Medio (poste alto)
@@ -89,12 +92,17 @@ export class CreateComponent implements AfterViewInit, OnInit {
       ],
     };
 
-
   private apiService: PeticionesApiService = inject(PeticionesApiService);
+
   public leagues: LeaguesResponse[] = [];
+
   public selectedLeagueId: number | null = null;
+
   public filteredLeagues: LeaguesResponse[] = [];//Para filtrar las ligas que no sean de 2023 en el selector
-  TeamName: string = ''; // Nombre del equipo, se puede cambiar en el input
+
+  TeamName: string = ''; // Nombre del equipo personalizado
+
+  numCont: number = 0; // Contador para el nombre del equipo
 
   ngOnInit(): void {
     this.getLeagues();
@@ -140,14 +148,11 @@ export class CreateComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit(): void {
-    // Conectar el select de formaciones si no se usa (change) en el template
-    // o para cargar una formación por defecto
     const selectElement = document.getElementById('select1') as HTMLSelectElement;
     if (selectElement) {
       selectElement.addEventListener('change', (event) =>
         this.onFormationSelectChange(event)
       );
-      // Para cargar una formación inicial si alguna está seleccionada por defecto
       if (
         selectElement.value &&
         selectElement.value !== 'SELECCIONA UNA FORMACIÓN'
@@ -205,7 +210,7 @@ export class CreateComponent implements AfterViewInit, OnInit {
     }
   }
 
-  // Opcional: Método para limpiar un slot si se implementa un botón para ello
+  //Método para limpiar un slot
   clearPlayerSlot(position: PlayerPosition): void {
     position.droppedPlayer = undefined;
     position.isOccupied = false;
@@ -213,35 +218,26 @@ export class CreateComponent implements AfterViewInit, OnInit {
 
   downloadImage(): void {
     const elementToCapture = document.querySelector('#captura') as HTMLElement | null;
-
+    this.numCont++;
     if (!elementToCapture) {
       console.error('Elemento #captura no encontrado.');
       return;
     }
 
     html2canvas(elementToCapture, {
-      allowTaint: false, // Es importante establecer esto en false cuando useCORS es true
-      useCORS: true,     // ¡Esta es la opción clave!
-      logging: true,     // Muestra logs en la consola, útil para depurar problemas con html2canvas
-      // Opcional: Si la imagen de fondo es la única que causa problemas y es muy grande,
-      // a veces un pequeño retraso puede ayudar, aunque useCORS es la solución principal.
-      //windowDelay: 500, // Espera 500ms después de que la ventana cargue (menos común para imágenes específicas)
-
-      // Si quieres un fondo específico para el PNG (en caso de transparencias en tu diseño)
-      // backgroundColor: '#ffffff', // Por ejemplo, blanco. Si es null, respeta la transparencia.
-
-      // Para mejorar la calidad en pantallas de alta densidad (retina), puedes usar la escala:
+      allowTaint: false,
+      useCORS: true,
+      logging: true,
       scale: window.devicePixelRatio,
     }).then((canvas) => {
       const link = document.createElement('a');
-      link.href = canvas.toDataURL('image/png'); // Mantienes PNG, que soporta transparencia
-      // Si quisieras JPEG (no soporta transparencia):
+      link.href = canvas.toDataURL('image/png');
+      // Si quisieramos JPEG (no soporta transparencia):
       // link.href = canvas.toDataURL('image/jpeg', 0.9); // 0.9 es la calidad (90%)
-      link.download = `${this.TeamName || 'Your-Bskt-Team'}.png`; // Asegúrate que lineUpName tenga un valor
+      link.download = `${this.TeamName || 'Bskt-Team-' + this.numCont}.png`;
       link.click();
     }).catch(error => {
       console.error('Error al generar la imagen con html2canvas:', error);
-      // Aquí podrías mostrar un mensaje al usuario indicando que hubo un problema.
     });
   }
 }

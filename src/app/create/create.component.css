@@ -1,3 +1,11 @@
+.con {
+  height: 100%;
+  padding-top: 10px;
+  background-image: url("https://i.ibb.co/k26ZjyBH/background.jpg");
+  background-position: center; /* Centra la imagen */
+  background-repeat: repeat; /* Evita que la imagen se repita */
+}
+
 .select {
   width: 30vw;
 }
@@ -8,15 +16,18 @@
   border-radius: 8px;
 }
 .hero {
-  height: 85vh;
-  margin-top: 10px;
+  height: 100%;
+  padding-top: 10px;
+  background-image: url("https://i.ibb.co/k26ZjyBH/background.jpg");
+  background-size: 50%;
+  background-position: center; /* Centra la imagen */
+  background-repeat: repeat; /* Evita que la imagen se repita */
 }
 
 #field {
   width: 100%;
 }
 
-/* create.component.css */
 .player-marker {
   position: absolute;
   width: 30px; /* Tamaño del marcador del jugador */
@@ -37,22 +48,19 @@
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
-/* Ajusta el z-index si los marcadores quedan debajo de otros elementos */
 #player-positions-container {
   z-index: 10;
 }
 
 .wrapper {
   width: 80%;
-  border: 5px solid #c28946;
+  border: 5px solid #825627;
 }
 
-/* create.component.css */
 #player-positions-container {
   z-index: 10; /* Para que los marcadores estén sobre la imagen del campo */
 }
 
-/* Estilo base para el slot en el campo (el área de drop) */
 .player-marker-slot {
   position: absolute;
   width: 75px; /* Define el tamaño del área donde se mostrará la card o el placeholder */
@@ -75,7 +83,6 @@
   background-color: rgba(0, 123, 255, 0.05); /* Fondo muy ligero */
 }
 
-/* Estilo para el placeholder del slot vacío */
 .empty-slot-placeholder {
   width: 35px; /* Un círculo más pequeño que la card completa */
   height: 35px;
@@ -91,7 +98,6 @@
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Estilo para la CARD del jugador cuando se suelta en el campo */
 .field-player-card {
   width: 100%; /* Ocupa todo el espacio del .player-marker-slot */
   height: 100%;
@@ -100,7 +106,6 @@
   align-items: center;
   justify-content: center; /* Centra el contenido si hay espacio extra */
   background-color: #43bae1;
-  border: 1px solid #2c7790;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 5px;
@@ -114,7 +119,6 @@
   height: 45px;
   border-radius: 50%; /* Imagen redonda */
   object-fit: cover; /* Asegura que la imagen cubra el área sin deformarse */
-  margin-bottom: 5px;
   border: 1px solid #eee;
 }
 
@@ -122,11 +126,8 @@
   font-size: 0.8em;
   font-weight: bolder;
   color: #ffffff;
-  white-space: nowrap; /* Evita que el nombre se parta en múltiples líneas */
-  overflow: hidden; /* Oculta el texto que no quepa */
-  text-overflow: ellipsis; /* Añade "..." si el nombre es muy largo */
   width: 100%; /* Asegura que el text-overflow funcione */
-  margin-top: auto; /* Empuja el nombre hacia abajo si hay espacio en la tarjeta */
+  margin-top: auto;
 }
 
 .clear-slot-btn {

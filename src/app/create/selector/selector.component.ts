@@ -83,44 +83,27 @@ export class SelectorComponent implements OnInit, OnChanges {
     });
   }
 
-  // 
   onTeamSelected(): void {
-    console.log('[onTeamSelected] Método invocado.');
-    console.log('[onTeamSelected] ID de equipo desde ngModel (this.teamId):', this.teamId, '| Tipo:', typeof this.teamId);
-    // Usamos JSON.parse(JSON.stringify(...)) para obtener una copia profunda y evitar logs complejos de objetos proxy de Angular.
-    console.log('[onTeamSelected] Equipos actualmente cargados (this.teams):', this.teams ? JSON.parse(JSON.stringify(this.teams)) : 'this.teams es null o undefined');
-
     // Aseguramos que this.teamId se evalúe como cadena para trim(), incluso si es número
     if (this.teamId !== null && String(this.teamId).trim() !== '' && this.teams && this.teams.length > 0) {
       const numericTeamId = Number(this.teamId);
-      console.log('[onTeamSelected] Intentando convertir a ID numérico:', numericTeamId);
-
       if (isNaN(numericTeamId)) {
-        console.error('[onTeamSelected] Error: El ID del equipo no es un número válido. Valor original:', this.teamId);
         this.players = [];
         this.currentTeamLogo = undefined;
-        console.log('[onTeamSelected] Logo y jugadores limpiados debido a ID de equipo no válido.');
         return;
       }
-
       const selectedTeam = this.teams.find(team => team.id === numericTeamId);
-      console.log('[onTeamSelected] Resultado de la búsqueda del equipo (selectedTeam):', selectedTeam ? JSON.parse(JSON.stringify(selectedTeam)) : 'No encontrado');
-
       if (selectedTeam) {
         // Verificamos explícitamente la propiedad logo
         if (selectedTeam.logo && typeof selectedTeam.logo === 'string' && selectedTeam.logo.trim() !== '') {
           this.currentTeamLogo = selectedTeam.logo;
-          console.log('%c[onTeamSelected] LOGO ASIGNADO CORRECTAMENTE (this.currentTeamLogo):', 'color: green; font-weight: bold;', this.currentTeamLogo);
         } else {
           this.currentTeamLogo = undefined;
-          console.warn('[onTeamSelected] ADVERTENCIA: Equipo encontrado PERO selectedTeam.logo NO es una URL válida o está ausente.', 'Valor de selectedTeam.logo:', selectedTeam.logo, 'Equipo:', selectedTeam);
-          console.log('[onTeamSelected] Logo limpiado porque selectedTeam.logo no es válido.');
         }
         this.getPlayersByTeam(numericTeamId);
       } else {
         this.currentTeamLogo = undefined;
         this.players = []; // Limpiar jugadores si el equipo no se encuentra
-        console.warn('[onTeamSelected] ADVERTENCIA: Equipo no encontrado para ID numérico:', numericTeamId, '. Logo y jugadores limpiados.');
       }
     } else {
       this.players = [];
@@ -128,10 +111,8 @@ export class SelectorComponent implements OnInit, OnChanges {
       let reason = '';
       if (this.teamId === null || String(this.teamId).trim() === '') reason += ' teamId es null o vacío;';
       if (!this.teams || this.teams.length === 0) reason += ' this.teams está vacío o no definido;';
-      console.log(`[onTeamSelected] CONDICIÓN INICIAL NO CUMPLIDA (${reason.trim()}). Logo y jugadores limpiados.`);
     }
   }
-
 
   getPlayersByTeam(teamId: number | string): void {
     this.apiService.getPlayers(teamId).subscribe({
