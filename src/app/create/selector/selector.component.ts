@@ -19,7 +19,7 @@ export class SelectorComponent implements OnInit, OnChanges {
 
   private apiService: PeticionesApiService = inject(PeticionesApiService);
   public teams: TeamsResponse[] = []; // Para almacenar los equipos
-  public teamId: number | null = null; // Para el ngModel del select de equipos
+  public teamId: number | string | null = null; // Para el ngModel del select de equipos
   public players: PlayerResponse[] = []; // Para almacenar los jugadores
   public currentTeamLogo: string | undefined; //Para almacenar el logo del equipo seleccionado
 
@@ -83,25 +83,57 @@ export class SelectorComponent implements OnInit, OnChanges {
     });
   }
 
+  // 
   onTeamSelected(): void {
-    console.log('Equipo seleccionado (ID):', this.teamId);
-    if (this.teamId !== null && this.teams.length > 0) {
-      const selectedTeam = this.teams.find(team => team.id === this.teamId);
-      // Solo actualizamos currentTeamLogo si se encontró un equipo.
-      // Si selectedTeam es undefined, currentTeamLogo será undefined.
-      this.currentTeamLogo = selectedTeam?.logo;
-      console.log('Logo del equipo seleccionado (antes de getPlayersByTeam):', this.currentTeamLogo);
+    console.log('[onTeamSelected] Método invocado.');
+    console.log('[onTeamSelected] ID de equipo desde ngModel (this.teamId):', this.teamId, '| Tipo:', typeof this.teamId);
+    // Usamos JSON.parse(JSON.stringify(...)) para obtener una copia profunda y evitar logs complejos de objetos proxy de Angular.
+    console.log('[onTeamSelected] Equipos actualmente cargados (this.teams):', this.teams ? JSON.parse(JSON.stringify(this.teams)) : 'this.teams es null o undefined');
 
-      this.getPlayersByTeam(this.teamId);
+    // Aseguramos que this.teamId se evalúe como cadena para trim(), incluso si es número
+    if (this.teamId !== null && String(this.teamId).trim() !== '' && this.teams && this.teams.length > 0) {
+      const numericTeamId = Number(this.teamId);
+      console.log('[onTeamSelected] Intentando convertir a ID numérico:', numericTeamId);
+
+      if (isNaN(numericTeamId)) {
+        console.error('[onTeamSelected] Error: El ID del equipo no es un número válido. Valor original:', this.teamId);
+        this.players = [];
+        this.currentTeamLogo = undefined;
+        console.log('[onTeamSelected] Logo y jugadores limpiados debido a ID de equipo no válido.');
+        return;
+      }
+
+      const selectedTeam = this.teams.find(team => team.id === numericTeamId);
+      console.log('[onTeamSelected] Resultado de la búsqueda del equipo (selectedTeam):', selectedTeam ? JSON.parse(JSON.stringify(selectedTeam)) : 'No encontrado');
+
+      if (selectedTeam) {
+        // Verificamos explícitamente la propiedad logo
+        if (selectedTeam.logo && typeof selectedTeam.logo === 'string' && selectedTeam.logo.trim() !== '') {
+          this.currentTeamLogo = selectedTeam.logo;
+          console.log('%c[onTeamSelected] LOGO ASIGNADO CORRECTAMENTE (this.currentTeamLogo):', 'color: green; font-weight: bold;', this.currentTeamLogo);
+        } else {
+          this.currentTeamLogo = undefined;
+          console.warn('[onTeamSelected] ADVERTENCIA: Equipo encontrado PERO selectedTeam.logo NO es una URL válida o está ausente.', 'Valor de selectedTeam.logo:', selectedTeam.logo, 'Equipo:', selectedTeam);
+          console.log('[onTeamSelected] Logo limpiado porque selectedTeam.logo no es válido.');
+        }
+        this.getPlayersByTeam(numericTeamId);
+      } else {
+        this.currentTeamLogo = undefined;
+        this.players = []; // Limpiar jugadores si el equipo no se encuentra
+        console.warn('[onTeamSelected] ADVERTENCIA: Equipo no encontrado para ID numérico:', numericTeamId, '. Logo y jugadores limpiados.');
+      }
     } else {
-      // Si no hay equipo seleccionado o los equipos no están cargados, limpiar.
       this.players = [];
       this.currentTeamLogo = undefined;
-      console.log('No hay equipo seleccionado o equipos no cargados. currentTeamLogo limpiado.');
+      let reason = '';
+      if (this.teamId === null || String(this.teamId).trim() === '') reason += ' teamId es null o vacío;';
+      if (!this.teams || this.teams.length === 0) reason += ' this.teams está vacío o no definido;';
+      console.log(`[onTeamSelected] CONDICIÓN INICIAL NO CUMPLIDA (${reason.trim()}). Logo y jugadores limpiados.`);
     }
   }
 
-  getPlayersByTeam(teamId: number): void {
+
+  getPlayersByTeam(teamId: number | string): void {
     this.apiService.getPlayers(teamId).subscribe({
       next: (data) => {
         if (data && data.response) {
@@ -121,36 +153,37 @@ export class SelectorComponent implements OnInit, OnChanges {
 
   // Función para abreviar la posición
   abreviarPosicion(posicion: string): string {
+    if (!posicion) return 'N/A';
+
     switch (posicion) {
-      case 'Attacker':
-        return 'DL'; // Delantero
-      case 'Defender':
-        return 'DF'; // Defensa
-      case 'Midfielder':
-        return 'MD'; // Mediocampista
-      case 'Goalkeeper':
-        return 'POR'; // Portero
-      default:
-        return '  ';
+      case 'Base': return 'PG'; // Point Guard
+      case 'Escolta': return 'SG'; // Shooting Guard
+      case 'Alero': return 'SF'; // Small Forward
+      case 'Ala-Pívot': return 'PF'; // Power Forward
+      case 'Pívot': return 'C'; // Center
+      default: return posicion.substring(0, 3).toUpperCase(); // Devuelve las primeras 3 letras si no coincide
     }
+  }
+  getPlayerPositionColor(position: string | undefined): string {
+    if (!position) return '#CCCCCC'; // Un color por defecto
+    return this.positionColor[position] || this.positionColor[this.abreviarPosicion(position)] || '#CCCCCC';
   }
 
   //Método para iniciar el arrastre del jugador
   onPlayerDragStart(event: DragEvent, player: PlayerResponse): void {
     if (event.dataTransfer) {
-      // Envía toda la información del jugador
-      // const playerData: PlayerResponse = player;
+      console.log('[onPlayerDragStart] Valor de this.currentTeamLogo justo antes de crear dataToTransfer:', this.currentTeamLogo);
       const dataToTransfer = {
-        ...player, // Todos los datos del jugador (spread operator)
+        ...player,
         teamLogo: this.currentTeamLogo // Añade el logo del equipo actual
       };
 
+      console.log('Iniciando arrastre de jugador:', player.name, 'con logo:', dataToTransfer.teamLogo);
       event.dataTransfer.setData(
         'application/json',
         JSON.stringify(dataToTransfer)
       );
-
-      event.dataTransfer.effectAllowed = 'move'; // O 'copy', dependiendo de tu lógica
+      event.dataTransfer.effectAllowed = 'move';
     } else {
       console.error('DataTransfer no está disponible en este navegador.');
     }

@@ -15,10 +15,11 @@
           <div style="display: flex; align-items: center; flex-grow: 1">
             {{ player.name }}
           </div>
-          <span class="position-label FALTA AGREGAR COLOR DINAMICO">
-            {{ player.position }}
-          </span>
-          <!-- <img [src]="" alt=""> -->
+          <!-- <span class="position-label FALTA AGREGAR COLOR DINAMICO" [style.background-color]="getPlayerPositionColor(player.position)">
+            {{ abreviarPosicion(player.position) }}
+          </span> -->
+          <img *ngIf="currentTeamLogo" [src]="currentTeamLogo" alt="Logo del Equipo" class="team-logo-in-list imgTeam"
+            style="height: 24px; width: 24px; border-radius: 50%;">
         </div>
       </div>
       <div class="d-flex justify-content-center">

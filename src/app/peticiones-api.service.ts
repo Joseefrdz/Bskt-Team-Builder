@@ -38,7 +38,7 @@ export class PeticionesApiService {
   }
 
   // Método para obtener jugadores por equipo
-  public getPlayers(teamId: number): Observable<PlayersApiResponse> {
+  public getPlayers(teamId: number | string): Observable<PlayersApiResponse> {
     return this.http.get<PlayersApiResponse>(this.apiUrl + `players?team=${teamId}&season=2023`, {
       headers: {
         'x-rapidapi-key': this.apiKey,
