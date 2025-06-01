@@ -7,7 +7,7 @@ router-outlet {
 }
 
 .ca {
-  border: 2px solid red;
+  border: 2px solid rgba(255, 0, 0, 0);
 }
 .logo {
   height: 60px;
@@ -35,5 +35,5 @@ router-outlet {
   padding: 2px;
 }
 .collapse {
-  border: 2px solid red;
+  border: 2px solid rgba(255, 0, 0, 0);
 }
