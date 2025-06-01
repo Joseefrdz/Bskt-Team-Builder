@@ -1,22 +1,25 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild, OnInit, inject } from '@angular/core';
 import { SelectorComponent } from './selector/selector.component';
+import { PeticionesApiService } from '../peticiones-api.service'
+import { LeaguesResponse, Season } from '../models/Leagues';
+import html2canvas from 'html2canvas';
 import { CommonModule } from '@angular/common';
+import { PlayerResponse } from '../models/Players';
+import { FormsModule } from '@angular/forms';
 
-// Interfaz para los datos del jugador que se arrastran
-interface DraggedPlayerData {
-  id: number;
-  name: string;
-  photo: string;
-} // Interfaz actualizada para las posiciones en el campo
+interface DraggedPlayerDataWithTeamLogo extends PlayerResponse { // Extiende PlayerResponse
+  teamLogo?: string; // <-- Añadimos la propiedad para el logo del equipo
+}
+
 interface PlayerPosition {
   x: number;
   y: number;
   role?: string;
-  color?: string; // Color original del slot/placeholder
+  color?: string;
 
-  droppedPlayer?: DraggedPlayerData;
+  droppedPlayer?: DraggedPlayerDataWithTeamLogo;
   isOccupied: boolean;
-  isDragOver?: boolean;
+  isDragOver: boolean;
   id: string; // Un identificador único para cada slot
 }
 
@@ -24,139 +27,142 @@ interface PlayerPosition {
   selector: 'app-create',
   standalone: true,
   imports: [
-    CommonModule /* , SelectorComponent (si app-selector está en este template y es standalone) */,
-    SelectorComponent
-],
+    CommonModule,
+    SelectorComponent,
+    FormsModule
+  ],
   templateUrl: './create.component.html',
-  styleUrls: ['./create.component.css'], // Este CSS definirá el estilo de la card en el campo
+  styleUrls: ['./create.component.css'],
 })
-export class CreateComponent implements AfterViewInit {
-  @ViewChild('formationSelect') formationSelect!: ElementRef<HTMLSelectElement>; // Usado para el select de formación
+
+
+export class CreateComponent implements AfterViewInit, OnInit {
+  @ViewChild('formationSelect') formationSelect!: ElementRef<HTMLSelectElement>;
 
   public playerPositions: PlayerPosition[] = [];
 
-  // Definición de formaciones (como en la respuesta anterior)
+  // Definición de formaciones
   private formationsData: {
     [key: string]: Omit<
       PlayerPosition,
       'id' | 'isOccupied' | 'isDragOver' | 'droppedPlayer'
     >[];
   } = {
-    '4-3-3': [
-      { x: 5, y: 50, role: 'POR', color: '#405BA4' },
-      { x: 20, y: 20, role: 'LD', color: '#42713F' },
-      { x: 20, y: 40, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 60, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 80, role: 'LI', color: '#42713F' },
-      { x: 45, y: 30, role: 'MC', color: '#AEA503' },
-      { x: 45, y: 50, role: 'MC', color: '#AEA503' },
-      { x: 45, y: 70, role: 'MC', color: '#AEA503' },
-      { x: 70, y: 25, role: 'ED', color: '#91211B' },
-      { x: 70, y: 50, role: 'DC', color: '#91211B' },
-      { x: 70, y: 75, role: 'EI', color: '#91211B' },
-    ],
-    // ... (otras formaciones como 4-4-2, 4-2-3-1, 3-5-2, 5-3-2)
-    '4-4-2': [
-      { x: 5, y: 50, role: 'POR', color: '#405BA4' },
-      { x: 20, y: 20, role: 'LD', color: '#42713F' },
-      { x: 20, y: 40, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 60, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 80, role: 'LI', color: '#42713F' },
-      { x: 45, y: 15, role: 'MD', color: '#AEA503' },
-      { x: 45, y: 40, role: 'MC', color: '#AEA503' },
-      { x: 45, y: 60, role: 'MC', color: '#AEA503' },
-      { x: 45, y: 85, role: 'MI', color: '#AEA503' },
-      { x: 70, y: 35, role: 'DC', color: '#91211B' },
-      { x: 70, y: 65, role: 'DC', color: '#91211B' },
-    ],
-    '4-2-3-1': [
-      { x: 5, y: 50, role: 'POR', color: '#405BA4' },
-      { x: 20, y: 20, role: 'LD', color: '#42713F' },
-      { x: 20, y: 40, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 60, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 80, role: 'LI', color: '#42713F' },
-      { x: 38, y: 35, role: 'MCD', color: '#AEA503' },
-      { x: 38, y: 65, role: 'MCD', color: '#AEA503' },
-      { x: 55, y: 20, role: 'MPD', color: '#AEA503' },
-      { x: 55, y: 50, role: 'MPC', color: '#AEA503' },
-      { x: 55, y: 80, role: 'MPI', color: '#AEA503' },
-      { x: 75, y: 50, role: 'DC', color: '#91211B' },
-    ],
-    '3-5-2': [
-      { x: 5, y: 50, role: 'POR', color: '#405BA4' },
-      { x: 20, y: 30, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 50, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 70, role: 'DFC', color: '#42713F' },
-      { x: 45, y: 10, role: 'CARD', color: '#AEA503' },
-      { x: 40, y: 35, role: 'MC', color: '#AEA503' },
-      { x: 40, y: 50, role: 'MC', color: '#AEA503' },
-      { x: 40, y: 65, role: 'MC', color: '#AEA503' },
-      { x: 45, y: 90, role: 'CARI', color: '#AEA503' },
-      { x: 70, y: 40, role: 'DC', color: '#91211B' },
-      { x: 70, y: 60, role: 'DC', color: '#91211B' },
-    ],
-    '5-3-2': [
-      { x: 5, y: 50, role: 'POR', color: '#405BA4' },
-      { x: 20, y: 15, role: 'CARD', color: '#42713F' },
-      { x: 22, y: 35, role: 'DFC', color: '#42713F' },
-      { x: 22, y: 50, role: 'DFC (LIB)', color: '#42713F' },
-      { x: 22, y: 65, role: 'DFC', color: '#42713F' },
-      { x: 20, y: 85, role: 'CARI', color: '#42713F' },
-      { x: 45, y: 30, role: 'MC', color: '#AEA503' },
-      { x: 45, y: 50, role: 'MC', color: '#AEA503' },
-      { x: 45, y: 70, role: 'MC', color: '#AEA503' },
-      { x: 70, y: 40, role: 'DC', color: '#91211B' },
-      { x: 70, y: 60, role: 'DC', color: '#91211B' },
-    ],
-  };
+      '2-1-2': [ // Zona 2-1-2 (dos arriba, uno en el medio, dos abajo)
+        { x: 75, y: 30, role: 'ESC', color: '#885B89' }, // Arriba izquierda (defensor exterior)
+        { x: 75, y: 70, role: 'BS', color: '#405BA4' }, // Arriba derecha (defensor exterior)
+        { x: 55, y: 50, role: 'ALA', color: '#AEA503' }, // Medio (poste alto)
+        { x: 25, y: 20, role: 'AP', color: '#42713F' }, // Abajo izquierda (esquina o poste bajo)
+        { x: 25, y: 80, role: 'PVT', color: '#91211B' }, // Abajo derecha (esquina o poste bajo)
+      ],
+      '1-2-2': [ // Zona 1-2-2 (uno arriba, dos en el medio, dos abajo)
+        { x: 85, y: 50, role: 'BS', color: '#405BA4' }, // Arriba (punta)
+        { x: 60, y: 25, role: 'ESC', color: '#885B89' }, // Medio izquierda (ala/codo)
+        { x: 60, y: 75, role: 'ALA', color: '#AEA503' }, // Medio derecha (ala/codo)
+        { x: 25, y: 20, role: 'AP', color: '#42713F' }, // Abajo izquierda (esquina o bajo)
+        { x: 25, y: 80, role: 'PVT', color: '#91211B' }, // Abajo derecha (esquina o bajo)
+      ],
+      '1-1-3': [ // Zona 1-1-3 (uno arriba, uno en el poste alto, tres abajo)
+        { x: 85, y: 50, role: 'BS', color: '#405BA4' }, // Arriba (punta)
+        { x: 55, y: 50, role: 'ESC', color: '#885B89' }, // Medio (poste alto)
+        { x: 25, y: 15, role: 'ALA', color: '#AEA503' }, // Abajo izquierda (esquina profunda)
+        { x: 15, y: 50, role: 'AP', color: '#42713F' }, // Abajo centro (cerca del aro)
+        { x: 25, y: 85, role: 'PVT', color: '#91211B' }, // Abajo derecha (esquina profunda)
+      ],
+      '1-3-1': [ // Zona 1-3-1 (uno arriba, tres en línea media, uno abajo)
+        { x: 85, y: 50, role: 'BS', color: '#405BA4' }, // Arriba (punta)
+        { x: 60, y: 15, role: 'ESC', color: '#885B89' }, // Ala izquierda (parte de los '3')
+        { x: 50, y: 50, role: 'AP', color: '#42713F' }, // Poste alto (centro de los '3')
+        { x: 60, y: 85, role: 'ALA', color: '#AEA503' }, // Ala derecha (parte de los '3')
+        { x: 25, y: 50, role: 'PVT', color: '#91211B' }, // Poste bajo (el '1' de abajo)
+      ],
+      '2-3': [ // Zona 2-3 (dos arriba, tres abajo) - La zona más común
+        { x: 75, y: 30, role: 'BS', color: '#405BA4' }, // Arriba izquierda
+        { x: 75, y: 70, role: 'ESC', color: '#885B89' }, // Arriba derecha
+        { x: 25, y: 15, role: 'ALA', color: '#AEA503' }, // Abajo izquierda (esquina)
+        { x: 15, y: 50, role: 'AP', color: '#42713F' }, // Abajo centro (Pívot defensivo)
+        { x: 25, y: 85, role: 'PVT', color: '#91211B' }, // Abajo derecha (esquina)
+      ],
+      '3-2': [ // Zona 3-2 (tres arriba, dos abajo)
+        { x: 75, y: 50, role: 'BS', color: '#405BA4' }, // Central arriba
+        { x: 75, y: 20, role: 'ESC', color: '#885B89' }, // Ala izquierda (arriba)
+        { x: 75, y: 80, role: 'ALA', color: '#AEA503' }, // Ala derecha (arriba)
+        { x: 25, y: 35, role: 'AP', color: '#42713F' }, // Abajo izquierda
+        { x: 25, y: 65, role: 'PVT', color: '#91211B' }, // Abajo derecha
+      ],
+    };
 
-  constructor() {}
+  private apiService: PeticionesApiService = inject(PeticionesApiService);
 
-  // Event listener para el select de formación (del HTML original)
-  // Este método tiene que estar presente si el (change) event está en el select
+  public leagues: LeaguesResponse[] = [];
+
+  public selectedLeagueId: number | null = null;
+
+  public filteredLeagues: LeaguesResponse[] = [];//Para filtrar las ligas que no sean de 2023 en el selector
+
+  TeamName: string = ''; // Nombre del equipo personalizado
+
+  numCont: number = 0; // Contador para el nombre del equipo
+
+  ngOnInit(): void {
+    this.getLeagues();
+  }
+
+  getLeagues(): void {
+    this.apiService.getLeagues().subscribe({
+      next: (data) => {
+        if (data && data.response) {
+          this.leagues = data.response;
+          this.filteredLeagues = this.leagues.filter(league =>
+            this.hasSeason2023(league.seasons)
+          );
+          console.log('Ligas filtradas obtenidas:', this.filteredLeagues);
+        }
+      },
+      error: (err) => {
+        console.error('Error al obtener las ligas:', err);
+      }
+    });
+  }
+
+  // Event listener para el select de Liga
+  onLeagueSelected(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const value = selectElement.value;
+    this.selectedLeagueId = value ? parseInt(value, 10) : null;
+    console.log('Liga seleccionada (ID):', this.selectedLeagueId);
+  }
+
+  private hasSeason2023(seasons: Season[]): boolean {
+    if (!seasons || seasons.length === 0) {
+      return false;
+    }
+    // Comprueba si alguna de las temporadas en el array es 2023
+    return seasons.some(season => season.season === 2023);
+  }
+
+  // Event listener para el select de formación
   onFormationSelectChange(event: Event): void {
     const selectedFormationKey = (event.target as HTMLSelectElement).value;
     this.updatePlayerPositions(selectedFormationKey);
   }
 
-  // ngAfterViewInit para cargar la formación inicial o manejar el select si se usa ViewChild
   ngAfterViewInit(): void {
-    // Conectar el select de formaciones si no se usa (change) en el template
-    // o para cargar una formación por defecto
-    const selectElement = document.getElementById('Jaime') as HTMLSelectElement;
+    const selectElement = document.getElementById('select1') as HTMLSelectElement;
     if (selectElement) {
       selectElement.addEventListener('change', (event) =>
         this.onFormationSelectChange(event)
       );
-      // Para cargar una formación inicial si alguna está seleccionada por defecto (que no sea el placeholder)
       if (
         selectElement.value &&
         selectElement.value !== 'SELECCIONA UNA FORMACIÓN'
       ) {
         this.updatePlayerPositions(selectElement.value);
       }
-    } else {
-      // Si se usa ViewChild y (change) en el template, este bloque es alternativo
-      if (this.formationSelect?.nativeElement) {
-        // this.formationSelect.nativeElement.value podría ser la opción "SELECCIONA..."
-        // o un valor numérico como "1", "2", etc. Hay que mapear esto.
-        // La lógica actual en el HTML usa values como "4-3-3", "4-4-2".
-        // El select original en create.component.html tiene values "1", "2", ...
-        // Es importante que los values del select coincidan con las keys de formationsData
-        // Modificaré el onFormationChange para que use el valor del select.
-      }
     }
   }
 
-  // Método modificado para manejar el cambio de formación desde el select original
-  // Este método se llamará desde el event listener añadido en ngAfterViewInit
-  // O directamente desde el template si se usa (change)="onFormationSelected($event.target.value)"
   updatePlayerPositions(formationKey: string): void {
-    // Mapear value "1" a "4-3-3", "2" a "4-4-2", etc. si es necesario
-    // O mejor, cambiar los values del select en create.component.html
-    // a "4-3-3", "4-4-2" para que coincidan con las keys de formationsData.
-    // Asumiré que los values del select ya son "4-3-3", "4-4-2", etc.
-    // Si no, necesitas un mapeo aquí.
 
     const formationBaseData = this.formationsData[formationKey];
 
@@ -192,9 +198,11 @@ export class CreateComponent implements AfterViewInit {
       const playerDataString = event.dataTransfer.getData('application/json');
       if (playerDataString) {
         try {
-          const playerData: DraggedPlayerData = JSON.parse(playerDataString);
-          targetPosition.droppedPlayer = playerData;
-          targetPosition.isOccupied = true;
+          // Parseamos el JSON a un objeto PlayerResponse completo
+          const playerData: DraggedPlayerDataWithTeamLogo = JSON.parse(playerDataString); //
+          targetPosition.droppedPlayer = playerData; //
+          targetPosition.isOccupied = true; //
+          console.log(`Jugador "${playerData.name}" (Equipo Logo: ${playerData.teamLogo || 'N/A'}) soltado en la posición: ${targetPosition.role}`);
         } catch (e) {
           console.error('Error al parsear datos del jugador:', e);
         }
@@ -202,9 +210,34 @@ export class CreateComponent implements AfterViewInit {
     }
   }
 
-  // Opcional: Método para limpiar un slot si se implementa un botón para ello
+  //Método para limpiar un slot
   clearPlayerSlot(position: PlayerPosition): void {
     position.droppedPlayer = undefined;
     position.isOccupied = false;
+  }
+
+  downloadImage(): void {
+    const elementToCapture = document.querySelector('#captura') as HTMLElement | null;
+    this.numCont++;
+    if (!elementToCapture) {
+      console.error('Elemento #captura no encontrado.');
+      return;
+    }
+
+    html2canvas(elementToCapture, {
+      allowTaint: false,
+      useCORS: true,
+      logging: true,
+      scale: window.devicePixelRatio,
+    }).then((canvas) => {
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      // Si quisieramos JPEG (no soporta transparencia):
+      // link.href = canvas.toDataURL('image/jpeg', 0.9); // 0.9 es la calidad (90%)
+      link.download = `${this.TeamName || 'Bskt-Team-' + this.numCont}.png`;
+      link.click();
+    }).catch(error => {
+      console.error('Error al generar la imagen con html2canvas:', error);
+    });
   }
 }

@@ -1,13 +1,17 @@
-<h2>Formulario de contacto</h2>
+<div class="cuerpo container-fluid">
+  <h2>Formulario de contacto</h2>
 
-<input type="text" class="form-control mt-3" placeholder="Nombre y Apellidos" [(ngModel)]="nombre" />
+  <div class="form">
+    <input type="text" class="form-control mt-3" placeholder="Nombre y Apellidos" [(ngModel)]="nombre" />
 
-<input type="email" class="form-control mt-3" placeholder="E-mail" [(ngModel)]="email" />
+    <input type="email" class="form-control mt-3" placeholder="E-mail" [(ngModel)]="email" />
 
-<input type="text" class="form-control mt-3" placeholder="Asunto" [(ngModel)]="asunto" />
+    <input type="text" class="form-control mt-3" placeholder="Asunto" [(ngModel)]="asunto" />
 
-<textarea type="text" class="form-control mt-3" placeholder="Mensaje" [(ngModel)]="mensaje"></textarea>
+    <textarea type="text" class="form-control mt-3" placeholder="Mensaje" [(ngModel)]="mensaje"></textarea>
+  </div>
 
-<button class="btn btn-outline-success mt-3" (click)="agregarElemento()">
-  Guardar y enviar
-</button>
+  <button class="btn btn-outline-success mt-3" (click)="agregarElemento()">
+    Guardar y enviar
+  </button>
+</div>
