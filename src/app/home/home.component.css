@@ -48,3 +48,10 @@ button:hover {
   justify-content: space-around;
   gap: 10px;
 }
+
+.galeria img {
+  width: 100%;
+  max-width: 23%;
+  object-fit: cover;
+  border-radius: 8px;
+}
