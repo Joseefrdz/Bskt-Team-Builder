@@ -11,7 +11,8 @@
   gap: 40px;
 }
 
-.izquierda, .derecha {
+.izquierda,
+.derecha {
   flex: 1;
 }
 
@@ -24,6 +25,7 @@
 .derecha p {
   font-size: 18px;
   margin-bottom: 10px;
+  margin-right: 5%;
 }
 
 button {
@@ -34,6 +36,7 @@ button {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  width: 30%;
 }
 
 button:hover {
@@ -42,13 +45,6 @@ button:hover {
 
 .galeria {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   gap: 10px;
-}
-
-.galeria img {
-  width: 100%;
-  max-width: 23%;
-  object-fit: cover;
-  border-radius: 8px;
 }
